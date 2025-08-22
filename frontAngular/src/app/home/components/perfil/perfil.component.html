@@ -1,0 +1,57 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+
+      <!-- Card del perfil -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white text-center">
+          <h4>Mi Perfil</h4>
+        </div>
+        <div class="card-body">
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nombre:</label>
+            <p class="form-control-plaintext">{{ usuario?.nombre }}</p>
+          </div>
+
+          <!-- Correo -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Correo:</label>
+            <p class="form-control-plaintext">{{ usuario?.correo }}</p>
+          </div>
+
+          <!-- Edad -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Edad:</label>
+            <p class="form-control-plaintext">{{ usuario?.edad }}</p>
+          </div>
+
+          <!-- Rol -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Rol:</label>
+            <p class="form-control-plaintext">
+              {{ usuario?.rol?.nombre }}
+              <span *ngIf="usuario?.rol?.nombre === 'admin'" class="badge bg-warning text-dark ms-2">ADMIN</span>
+            </p>
+          </div>
+
+          <!-- Permisos -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Permisos:</label>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item" *ngFor="let permiso of usuario?.rol?.permisos">
+                {{ permiso }}
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="card-footer text-center">
+          <button class="btn btn-outline-primary" routerLink="/dashboard">Volver al Dashboard</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

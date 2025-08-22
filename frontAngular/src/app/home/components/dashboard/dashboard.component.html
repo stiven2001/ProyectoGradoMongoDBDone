@@ -1,0 +1,165 @@
+<div class="container mt-4">
+
+    <!-- Bienvenida -->
+    <div class="text-center mb-4">
+        <h2>Bienvenido, {{ usuario?.nombre }}!</h2>
+        <span *ngIf="usuario?.rol?.nombre === 'admin'" class="badge bg-warning text-dark">ADMIN</span>
+    </div>
+
+    <!-- Tarjetas de resumen -->
+    <div class="row">
+        <!-- Tarjeta 1: Usuarios -->
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Usuarios</h5>
+                    <p class="card-text">Número de usuarios registrados.</p>
+                    <span class="fs-4">{{ totalUsuarios }}</span>
+                    <br />
+                    <button class="btn btn-light mt-2" (click)="abrirModal(usuariosModal)">Ver usuarios</button> <br>
+                    <button class="btn btn-light mt-2" (click)="abrirModal(crearUsuarioModal)">Crear usuario</button> <br>
+                    <button class="btn btn-light mt-2" (click)="abrirModal(permisosModal)">Agregar nuevo <strong>rol</strong></button>
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Tarjeta 2: Permisos -->
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Permisos</h5>
+                    <p class="card-text">Permisos disponibles según rol:</p>
+                    <ul>
+                        <li *ngFor="let permiso of usuario?.rol?.permisos">{{ permiso }}</li>
+                    </ul>
+                    <span class="fs-4">Total: {{ usuario?.rol?.permisos?.length }}</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Tarjeta 3: Reportes (solo admin) -->
+        <div class="col-md-4 mb-3" *ngIf="usuario?.rol?.nombre === 'admin'">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Reportes</h5>
+                    <p class="card-text">Acceso a reportes administrativos.</p>
+                    <span class="fs-4">3</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de información (opcional) -->
+    <div class="mt-4" *ngIf="actividades.length > 0">
+        <h4>Actividad reciente</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let actividad of actividades; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ actividad.usuario }}</td>
+                    <td>{{ actividad.accion }}</td>
+                    <td>{{ actividad.fecha | date:'short' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<!--Modal eliminar usuario admin.-->
+
+<ng-template #usuariosModal let-modal>
+    <div class="modal-header">
+        <h5 class="modal-title">Usuarios Registrados</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+        <table class="table table-striped">
+            <tr *ngFor="let u of usuarios; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.correo }}</td>
+                <td>{{ u.rol.nombre }}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" (click)="eliminarUsuario(u._id)">Eliminar</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</ng-template>
+
+
+<!--Modal Crear user-->
+<ng-template #crearUsuarioModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Crear Usuario</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="crearUsuarioForm" (ngSubmit)="crearUsuario(modal)">
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" id="nombre" class="form-control" formControlName="nombre" />
+      </div>
+      <div class="mb-3">
+        <label for="correo" class="form-label">Correo</label>
+        <input type="email" id="correo" class="form-control" formControlName="correo" />
+      </div>
+      <div class="mb-3">
+        <label for="contraseña" class="form-label">Contraseña</label>
+        <input type="password" id="contraseña" class="form-control" formControlName="contraseña" />
+      </div>
+      <div class="mb-3">
+        <label for="rol" class="form-label">Rol</label>
+        <select id="rol" class="form-select" formControlName="rol">
+          <option *ngFor="let r of roles" [value]="r.nombre">{{ r.nombre }}</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Crear</button>
+    </form>
+  </div>
+</ng-template>
+
+
+<!--Modal para asignar un nuevo rol-->
+
+<ng-template #permisosModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Permisos de {{ usuario?.nombre }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Mostrar permisos actuales -->
+    <h6>Permisos actuales:</h6>
+    <ul>
+      <li *ngFor="let permiso of usuario?.rol?.permisos">{{ permiso }}</li>
+    </ul>
+
+    <hr />
+
+    <!-- Campo para agregar un nuevo permiso -->
+    <div class="mb-3">
+      <label for="nuevoPermiso" class="form-label">Agregar permiso</label>
+      <input type="text" id="nuevoPermiso" class="form-control" [(ngModel)]="nuevoPermiso" placeholder="Ej: ver_reportes" />
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="modal.dismiss()">Cancelar</button>
+    <button class="btn btn-primary" (click)="agregarPermiso(modal)">Agregar</button>
+  </div>
+</ng-template>
